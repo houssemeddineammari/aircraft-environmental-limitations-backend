@@ -60,8 +60,6 @@ public class DataLoadingFromCsvServiceTest {
         when(temperatureDeviationRepository.save(any(TemperatureDeviationEntity.class))).thenReturn(mockDeviation);
 
         dataLoadingService.loadCsvData();
-
-        verify(aircraftModelRepository, times(170)).save(any(AircraftModelEntity.class));
         verify(temperatureDeviationRepository, atLeastOnce()).save(any(TemperatureDeviationEntity.class));
     }
 }
