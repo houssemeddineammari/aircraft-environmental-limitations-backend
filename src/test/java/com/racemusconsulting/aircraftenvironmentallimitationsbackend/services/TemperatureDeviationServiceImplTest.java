@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import com.racemusconsulting.aircraftenvironmentallimitationsbackend.dtos.TemperatureDeviationResponseDTO;
@@ -100,4 +99,30 @@ public class TemperatureDeviationServiceImplTest {
 		assertEquals(20.0, response.getMaxTemperature());
 	}
 
+	@Test
+	public void whenInterpolationIsRequired_thenInterpolateCorrectly() {
+		TemperatureDeviationRepository mockRepository = Mockito.mock(TemperatureDeviationRepository.class);
+		AircraftModelEntity aircraftModel = new AircraftModelEntity();
+		aircraftModel.setModel("A320");
+
+		TemperatureDeviationEntity lowerDeviationMin = new TemperatureDeviationEntity(1L, 9000.0, -5.0, "CRUISE", "MIN",
+				aircraftModel);
+		TemperatureDeviationEntity upperDeviationMin = new TemperatureDeviationEntity(2L, 11000.0, -15.0, "CRUISE",
+				"MIN", aircraftModel);
+		TemperatureDeviationEntity lowerDeviationMax = new TemperatureDeviationEntity(3L, 9000.0, 20.0, "CRUISE", "MAX",
+				aircraftModel);
+		TemperatureDeviationEntity upperDeviationMax = new TemperatureDeviationEntity(4L, 11000.0, 25.0, "CRUISE",
+				"MAX", aircraftModel);
+
+		List<TemperatureDeviationEntity> deviations = Arrays.asList(lowerDeviationMin, upperDeviationMin,
+				lowerDeviationMax, upperDeviationMax);
+		Mockito.when(mockRepository.findByAircraftModelModelAndPhase("A320", "CRUISE")).thenReturn(deviations);
+
+		TemperatureDeviationServiceImpl service = new TemperatureDeviationServiceImpl(mockRepository);
+
+		TemperatureDeviationResponseDTO response = service.getTemperatureDeviation("A320", 10000.0, "CRUISE");
+
+		assertEquals(-10.0, response.getMinTemperature(), 0.01);
+		assertEquals(22.5, response.getMaxTemperature(), 0.01);
+	}
 }
