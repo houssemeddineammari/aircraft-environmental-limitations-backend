@@ -8,6 +8,7 @@ import com.racemusconsulting.aircraftenvironmentallimitationsbackend.dtos.Temper
 import com.racemusconsulting.aircraftenvironmentallimitationsbackend.entities.TemperatureDeviationEntity;
 import com.racemusconsulting.aircraftenvironmentallimitationsbackend.exceptions.AircraftEnvironmentLimitationsCustomApplicationException;
 import com.racemusconsulting.aircraftenvironmentallimitationsbackend.repositories.TemperatureDeviationRepository;
+import com.racemusconsulting.aircraftenvironmentallimitationsbackend.utils.MathUtils;
 
 @Service
 public class TemperatureDeviationServiceImpl implements TemperatureDeviationService {
@@ -40,8 +41,8 @@ public class TemperatureDeviationServiceImpl implements TemperatureDeviationServ
 		}
 
 		TemperatureDeviationResponseDTO deviationDTO = new TemperatureDeviationResponseDTO();
-		deviationDTO.setMinTemperature(minTemperature);
-		deviationDTO.setMaxTemperature(maxTemperature);
+		deviationDTO.setMinTemperature(MathUtils.roundToTwoDecimalPlaces(minTemperature));
+		deviationDTO.setMaxTemperature(MathUtils.roundToTwoDecimalPlaces(maxTemperature));
 
 		return deviationDTO;
 	}
