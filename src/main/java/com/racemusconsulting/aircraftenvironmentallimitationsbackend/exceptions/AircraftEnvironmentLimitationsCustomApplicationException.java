@@ -21,4 +21,16 @@ public class AircraftEnvironmentLimitationsCustomApplicationException extends Ru
     public static AircraftEnvironmentLimitationsCustomApplicationException csvParsingError(String message) {
         return new AircraftEnvironmentLimitationsCustomApplicationException(message, HttpStatus.BAD_REQUEST);
     }
+    
+    public static AircraftEnvironmentLimitationsCustomApplicationException modelNotFound(String message) {
+        return new AircraftEnvironmentLimitationsCustomApplicationException(message, HttpStatus.BAD_REQUEST);
+    }
+
+    public static AircraftEnvironmentLimitationsCustomApplicationException altitudeNotFound(String message) {
+        return new AircraftEnvironmentLimitationsCustomApplicationException(message, HttpStatus.BAD_REQUEST);
+    }
+
+    public static AircraftEnvironmentLimitationsCustomApplicationException phaseNotFound(String message) {
+        return new AircraftEnvironmentLimitationsCustomApplicationException(message, HttpStatus.BAD_REQUEST);
+    }
 }
