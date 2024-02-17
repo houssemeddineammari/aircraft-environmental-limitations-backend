@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import com.racemusconsulting.aircraftenvironmentallimitationsbackend.entities.AircraftModelEntity;
 import com.racemusconsulting.aircraftenvironmentallimitationsbackend.entities.TemperatureDeviationEntity;
+import com.racemusconsulting.aircraftenvironmentallimitationsbackend.exceptions.AircraftEnvironmentLimitationsCustomApplicationException;
 import com.racemusconsulting.aircraftenvironmentallimitationsbackend.repositories.AircraftModelRepository;
 import com.racemusconsulting.aircraftenvironmentallimitationsbackend.repositories.TemperatureDeviationRepository;
 
@@ -41,7 +41,8 @@ public class DataLoadingFromCsvService {
 				processLine(line);
 			}
 		} catch (IOException e) {
-			log.error("Error reading CSV file: " + e.getMessage());
+			throw AircraftEnvironmentLimitationsCustomApplicationException
+					.csvFileReadError("Error reading CSV file: " + e.getMessage());
 		}
 	}
 
@@ -57,7 +58,7 @@ public class DataLoadingFromCsvService {
 			processAndSaveDeviations(aircraftModel, values[4], "MIN", "TOLD");
 		}
 	}
-	
+
 	private AircraftModelEntity findOrCreateAircraftModel(String model) {
 		return aircraftModelRepository.findByModel(model).orElseGet(() -> {
 			AircraftModelEntity newModel = new AircraftModelEntity();
@@ -65,29 +66,31 @@ public class DataLoadingFromCsvService {
 			return aircraftModelRepository.save(newModel);
 		});
 	}
-	
+
 	private void processAndSaveDeviations(AircraftModelEntity aircraftModel, String deviationData, String type,
 			String phase) {
 		Arrays.stream(deviationData.split("\\|")).map(part -> part.split(":")).filter(parts -> parts.length == 2)
-		.forEach(parts -> {
-			try {
-				Double altitude = Double.valueOf(parts[0]);
-				Double temperature = Double.valueOf(parts[1]);
-				saveTemperatureDeviation(aircraftModel, altitude, temperature, type, phase);
-			} catch (NumberFormatException e) {
-			}
-		});
+				.forEach(parts -> {
+					try {
+						Double altitude = Double.valueOf(parts[0]);
+						Double temperature = Double.valueOf(parts[1]);
+						saveTemperatureDeviation(aircraftModel, altitude, temperature, type, phase);
+					} catch (NumberFormatException e) {
+						throw AircraftEnvironmentLimitationsCustomApplicationException.csvParsingError(
+								"Error parsing number for model " + aircraftModel.getModel() + ": " + e.getMessage());
+					}
+				});
 
 	}
-	
-		private void saveTemperatureDeviation(AircraftModelEntity aircraftModel, Double altitude, Double temperature, String type,
-				String phase) {
-			TemperatureDeviationEntity deviation = new TemperatureDeviationEntity();
-			deviation.setAircraftModel(aircraftModel);
-			deviation.setAltitude(altitude);
-			deviation.setTemperature(temperature);
-			deviation.setType(type);
-			deviation.setPhase(phase);
-			temperatureDeviationRepository.save(deviation);
-		}
+
+	private void saveTemperatureDeviation(AircraftModelEntity aircraftModel, Double altitude, Double temperature,
+			String type, String phase) {
+		TemperatureDeviationEntity deviation = new TemperatureDeviationEntity();
+		deviation.setAircraftModel(aircraftModel);
+		deviation.setAltitude(altitude);
+		deviation.setTemperature(temperature);
+		deviation.setType(type);
+		deviation.setPhase(phase);
+		temperatureDeviationRepository.save(deviation);
+	}
 }
