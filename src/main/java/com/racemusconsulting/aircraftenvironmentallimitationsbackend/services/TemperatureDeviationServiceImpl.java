@@ -2,7 +2,10 @@ package com.racemusconsulting.aircraftenvironmentallimitationsbackend.services;
 
 import java.util.Comparator;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import com.racemusconsulting.aircraftenvironmentallimitationsbackend.dtos.TemperatureDeviationResponseDTO;
 import com.racemusconsulting.aircraftenvironmentallimitationsbackend.entities.TemperatureDeviationEntity;
@@ -12,7 +15,8 @@ import com.racemusconsulting.aircraftenvironmentallimitationsbackend.utils.MathU
 
 @Service
 public class TemperatureDeviationServiceImpl implements TemperatureDeviationService {
-
+	
+	private static final Logger log = LoggerFactory.getLogger(TemperatureDeviationServiceImpl.class);
 	private final TemperatureDeviationRepository repository;
 
 	@Autowired
@@ -21,7 +25,9 @@ public class TemperatureDeviationServiceImpl implements TemperatureDeviationServ
 	}
 
 	@Override
+	@Cacheable(value = "temperatureDeviations", key = "#model.concat('-').concat(#altitude.toString()).concat('-').concat(#phase)")
 	public TemperatureDeviationResponseDTO getTemperatureDeviation(String model, Double altitude, String phase) {
+		log.info("Calculating temperature deviation for model: {}, altitude: {}, phase: {}", model, altitude, phase);
 		validateInputParameters(model, altitude, phase);
 		List<TemperatureDeviationEntity> deviations = repository.findByAircraftModelModelAndPhase(model, phase);
 
