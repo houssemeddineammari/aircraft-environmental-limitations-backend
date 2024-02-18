@@ -1,8 +1,14 @@
 package com.racemusconsulting.aircraftenvironmentallimitationsbackend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.racemusconsulting.aircraftenvironmentallimitationsbackend.dtos.TemperatureDeviationRequestDTO;
+import com.racemusconsulting.aircraftenvironmentallimitationsbackend.dtos.TemperatureDeviationResponseDTO;
 import com.racemusconsulting.aircraftenvironmentallimitationsbackend.services.TemperatureDeviationService;
 
 @RestController
@@ -16,5 +22,9 @@ public class TemperatureDeviationController {
         this.temperatureDeviationService = temperatureDeviationService;
     }
 
-    
+    @PostMapping("/temperatureDeviation")
+    public ResponseEntity<TemperatureDeviationResponseDTO> getTemperatureDeviation(
+            @RequestBody TemperatureDeviationRequestDTO request) {
+       return null;
+    }
 }
