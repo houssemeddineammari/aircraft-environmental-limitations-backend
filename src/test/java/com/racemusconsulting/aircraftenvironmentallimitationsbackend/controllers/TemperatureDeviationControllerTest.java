@@ -1,6 +1,7 @@
 package com.racemusconsulting.aircraftenvironmentallimitationsbackend.controllers;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,6 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.BDDMockito.given;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.racemusconsulting.aircraftenvironmentallimitationsbackend.dtos.TemperatureDeviationRequestDTO;
@@ -41,7 +43,10 @@ public class TemperatureDeviationControllerTest {
 		given(temperatureDeviationService.getTemperatureDeviation("A320", 10000.0, "CRUISE")).willReturn(responseDTO);
 
 		// When & Then
-		mockMvc.perform(post("/performance/temperatureDeviation").contentType(MediaType.APPLICATION_JSON)
-				.content(new ObjectMapper().writeValueAsString(requestDTO))).andExpect(status().isOk());
+		mockMvc.perform(post("/performance/temperatureDeviation")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(new ObjectMapper().writeValueAsString(requestDTO))).andExpect(status().isOk()).andExpect(status().isOk())
+        .andExpect(jsonPath("$.minTemperature", is(10.0)))
+        .andExpect(jsonPath("$.maxTemperature", is(20.0)));
 	}
 }
