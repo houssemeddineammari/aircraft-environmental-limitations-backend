@@ -8,8 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-
 import com.racemusconsulting.aircraftenvironmentallimitationsbackend.dtos.TemperatureDeviationResponseDTO;
 import com.racemusconsulting.aircraftenvironmentallimitationsbackend.entities.AircraftModelEntity;
 import com.racemusconsulting.aircraftenvironmentallimitationsbackend.entities.TemperatureDeviationEntity;
@@ -124,5 +124,36 @@ public class TemperatureDeviationServiceImplTest {
 
 		assertEquals(-10.0, response.getMinTemperature(), 0.01);
 		assertEquals(22.5, response.getMaxTemperature(), 0.01);
+	}
+	
+	@Test
+	public void whenNoTemperatureDeviationsFound_thenThrowTemperatureDeviationNotFoundException() {
+	    TemperatureDeviationRepository mockRepository = Mockito.mock(TemperatureDeviationRepository.class);
+	    Mockito.when(mockRepository.findByAircraftModelModelAndPhase("A320", "CRUISE")).thenReturn(Collections.emptyList());
+
+	    TemperatureDeviationServiceImpl service = new TemperatureDeviationServiceImpl(mockRepository);
+
+	    assertThrows(AircraftEnvironmentLimitationsCustomApplicationException.class, () -> {
+	        service.getTemperatureDeviation("A320", 10000.0, "CRUISE");
+	    });
+	}
+
+	@Test
+	public void whenCannotInterpolateTemperatures_thenThrowTemperatureInterpolationException() {
+	    TemperatureDeviationRepository mockRepository = Mockito.mock(TemperatureDeviationRepository.class);
+	    AircraftModelEntity aircraftModel = new AircraftModelEntity();
+	    aircraftModel.setModel("A320");
+
+	    TemperatureDeviationEntity deviationMin = new TemperatureDeviationEntity(1L, 9000.0, -5.0, "CRUISE", "MIN", aircraftModel);
+	    TemperatureDeviationEntity deviationMax = new TemperatureDeviationEntity(2L, 11000.0, 25.0, "CRUISE", "MAX", aircraftModel);
+
+	    List<TemperatureDeviationEntity> deviations = Arrays.asList(deviationMin, deviationMax);
+	    Mockito.when(mockRepository.findByAircraftModelModelAndPhase("A320", "CRUISE")).thenReturn(deviations);
+
+	    TemperatureDeviationServiceImpl service = new TemperatureDeviationServiceImpl(mockRepository);
+
+	    assertThrows(AircraftEnvironmentLimitationsCustomApplicationException.class, () -> {
+	        service.getTemperatureDeviation("A320", 10001.0, "CRUISE");
+	    });
 	}
 }

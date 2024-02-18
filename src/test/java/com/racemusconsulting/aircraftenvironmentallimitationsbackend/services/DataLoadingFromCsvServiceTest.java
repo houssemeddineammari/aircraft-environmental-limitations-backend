@@ -53,4 +53,6 @@ public class DataLoadingFromCsvServiceTest {
 		dataLoadingService.loadCsvData();
 		verify(temperatureDeviationRepository, atLeastOnce()).save(any(TemperatureDeviationEntity.class));
 	}
+	
+
 }
