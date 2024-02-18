@@ -25,7 +25,7 @@ public class TemperatureDeviationServiceImpl implements TemperatureDeviationServ
 	}
 
 	@Override
-	@Cacheable(value = "temperatureDeviations", key = "#model.concat('-').concat(#altitude.toString()).concat('-').concat(#phase)")
+	@Cacheable(value = "temperatureDeviations", key = "{#model != null ? #model : 'null', #altitude != null ? #altitude.toString() : 'null', #phase != null ? #phase : 'null'}")
 	public TemperatureDeviationResponseDTO getTemperatureDeviation(String model, Double altitude, String phase) {
 		log.info("Calculating temperature deviation for model: {}, altitude: {}, phase: {}", model, altitude, phase);
 		validateInputParameters(model, altitude, phase);
