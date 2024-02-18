@@ -25,6 +25,8 @@ public class TemperatureDeviationController {
     @PostMapping("/temperatureDeviation")
     public ResponseEntity<TemperatureDeviationResponseDTO> getTemperatureDeviation(
             @RequestBody TemperatureDeviationRequestDTO request) {
-       return null;
+    	TemperatureDeviationResponseDTO deviationDTO = temperatureDeviationService.getTemperatureDeviation(
+                request.getAcModel(), request.getAltitude(), request.getAeroPhase());
+        return ResponseEntity.ok(deviationDTO);
     }
 }
